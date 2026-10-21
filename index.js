@@ -13,16 +13,19 @@ app.use(
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
-    databasse: 'mahasiswa',
-    password: 'jariyah.79',
+    database: 'mahasiswa',
+    password: 'jariyah79',
     port: 5432,
 })
+pool.query('SELECT current_database(), inet_server_port()')
+    .then(r => console.log('TERHUBUNG KE:', r.rows[0]))
+    .catch(err => console.error(err))
 
 // GET ALL
 app.get('/', (req, res) => {
     console.log("TEST DATA :");
 
-    pool.query('SELECT * FROM biodata ORDER BBY id')
+    pool.query('SELECT * FROM biodata ORDER BY id ASC ')
     .then(result => {
         res.send(result.rows);
     })
@@ -37,7 +40,7 @@ app.post('/biodata', (req, res) => {
     const { id, nama, nim, kelas } = req.body;
 
     pool.query(
-        'INSERT NTO biodata (id, nama, nim, kelas) VALUES ($1,$2,$3,$4) RETURNING *'
+        'INSERT INTO biodata (id, nama, nim, kelas) VALUES ($1,$2,$3,$4) RETURNING *',
         [id, nama, nim,kelas]
     )
         .then(result => res.json(result.rows[0]))
@@ -76,7 +79,7 @@ app.delete('/biodata/:id', (req, res) => {
     const { id } = req.params;
 
     pool.query(
-        'DELETE FROM biodata WHERE id-$1 RETURNING *',
+        'DELETE FROM biodata WHERE id=$1 RETURNING *',
         [id]
     )
         .then(result => {
